@@ -42,18 +42,28 @@ func (a *Analyser) TotalCount() uint64 {
 }
 
 func (a *Analyser) requestRate(timeUnit uint8) float32 {
-	now := time.Now()
-	num := 0
-	for i := len(a.stats.count["REQ"]) - 1; i > 0; i-- {
-		if now.After(a.stats.count["REQ"][i]) {
+	since := time.Now().Add(-1 * time.Duration(timeUnit) * time.Second)
+	count := a.eventsSince("REQ", since)
+
+	return float32(count) / float32(timeUnit)
+}
+
+func (a *Analyser) eventsSince(eventType string, since time.Time) (num uint64) {
+	num = 0
+	for i := len(a.stats.count[eventType]) - 1; i >= 0; i-- {
+		if a.stats.count[eventType][i].After(since) {
 			num++
 		}
 	}
-	return float32(num) / float32(timeUnit)
+	return num
 }
 
 func (a *Analyser) responseRate(timeUnit uint8) float32 {
-	return 0
+	since := time.Now().Add(-1 * time.Duration(timeUnit) * time.Second)
+	countACK := a.eventsSince("ACK", since)
+	countNAK := a.eventsSince("NAK", since)
+
+	return float32(countACK+countNAK) / float32(timeUnit)
 }
 
 func (a *Analyser) consume() error {
