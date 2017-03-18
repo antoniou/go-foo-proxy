@@ -51,9 +51,10 @@ func (a *Analyser) requestRate(timeUnit uint8) float32 {
 func (a *Analyser) eventsSince(eventType string, since time.Time) (num uint64) {
 	num = 0
 	for i := len(a.stats.count[eventType]) - 1; i >= 0; i-- {
-		if a.stats.count[eventType][i].After(since) {
-			num++
+		if !a.stats.count[eventType][i].After(since) {
+			break
 		}
+		num++
 	}
 	return num
 }
