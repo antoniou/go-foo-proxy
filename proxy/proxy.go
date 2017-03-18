@@ -6,6 +6,8 @@ import (
 	"io"
 	"net"
 	"os"
+
+	"github.com/antoniou/go-foo-proxy/analysis"
 )
 
 var connid = uint64(0)
@@ -16,6 +18,8 @@ var connid = uint64(0)
 type Proxy struct {
 	laddr, raddr *net.TCPAddr
 	lconn, rconn io.ReadWriteCloser
+	analyser     *analysis.Analyser
+	reporter     *analysis.Reporter
 }
 
 // FooMessage - A Foo protocol message
@@ -40,9 +44,12 @@ func New(localAddr string, remoteAddr string) *Proxy {
 		os.Exit(1)
 	}
 
+	analyser := analysis.New()
 	return &Proxy{
-		laddr: laddr,
-		raddr: raddr,
+		laddr:    laddr,
+		raddr:    raddr,
+		analyser: analyser,
+		reporter: analysis.NewReporter(analyser),
 	}
 }
 
@@ -62,8 +69,12 @@ func (p *Proxy) Run() {
 	}
 	defer p.rconn.Close()
 
+	go p.analyser.Run()
+	go p.reporter.Run()
+
 	for {
 		p.lconn, err = listener.AcceptTCP()
+
 		if err != nil {
 			fmt.Printf("Failed to accept connection '%s'", err)
 			continue
@@ -80,6 +91,7 @@ func (p *Proxy) pipe(src, dst io.ReadWriter) {
 		if err != nil {
 			return
 		}
+		p.analyser.MsgChannel <- string(msg.raw)
 		p.writeMessage(msg, dst)
 	}
 }
