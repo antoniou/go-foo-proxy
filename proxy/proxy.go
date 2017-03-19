@@ -24,10 +24,7 @@ type Proxy struct {
 
 // FooMessage - A Foo protocol message
 type FooMessage struct {
-	Type string
-	Seq  int
-	Data string // TODO: Make buff
-	raw  []byte
+	raw []byte
 }
 
 // New - Creates a Proxy instance
@@ -62,26 +59,27 @@ func (p *Proxy) Run() {
 		os.Exit(1)
 	}
 
-	p.rconn, err = net.DialTCP("tcp", nil, p.raddr)
-	if err != nil {
-		fmt.Printf("Remote connection failed: %s", err)
-		return
-	}
-	defer p.rconn.Close()
-
 	go p.analyser.Run()
 	go p.reporter.Run()
 
 	for {
-		p.lconn, err = listener.AcceptTCP()
+		p.rconn, err = net.DialTCP("tcp", nil, p.raddr)
+		if err != nil {
+			fmt.Printf("Remote connection failed: %s", err)
+			return
+		}
+		defer p.rconn.Close()
 
+		lconn, err := listener.AcceptTCP()
 		if err != nil {
 			fmt.Printf("Failed to accept connection '%s'", err)
 			continue
 		}
+
 		connid++
-		go p.pipe(p.lconn, p.rconn)
-		go p.pipe(p.rconn, p.lconn)
+		go p.pipe(lconn, p.rconn)
+		go p.pipe(p.rconn, lconn)
+
 	}
 }
 
@@ -102,19 +100,20 @@ func (p *Proxy) readMessage(src io.ReadWriter) (*FooMessage, error) {
 	messageComplete := false
 	//directional copy (64k buffer)
 	buff := make([]byte, 0xffff)
-
 	pos := 0
+
 	for messageComplete != true {
 		n, err := src.Read(buff[pos:])
 		if err != nil {
 			return nil, err
 		}
 		pos += n
-		fmt.Printf("Read total data %s", buff[:pos])
 		if bytes.ContainsAny(buff[:pos], "\n") {
 			messageComplete = true
 		}
 	}
+
+	fmt.Printf("Read data: %s", buff[:pos])
 
 	return &FooMessage{
 		raw: buff[:pos],
@@ -122,7 +121,7 @@ func (p *Proxy) readMessage(src io.ReadWriter) (*FooMessage, error) {
 }
 
 func (p *Proxy) writeMessage(msg *FooMessage, dst io.ReadWriter) error {
-	fmt.Printf("Sending data %s", msg.raw)
+	fmt.Printf("Sending data: %s", msg.raw)
 	_, err := dst.Write(msg.raw)
 	if err != nil {
 		fmt.Printf("Write failed '%s'\n", err)

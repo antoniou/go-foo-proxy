@@ -46,4 +46,4 @@ unit: get-deps-tests build verify
 		@go test ./... -cover -v
 
 integration: get-deps-tests build verify
-		@go test ./... -cover --tags=integration
+		@go test proxy/proxy_test.go -cover --tags=integration -v
