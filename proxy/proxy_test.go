@@ -62,7 +62,11 @@ type mockClient struct {
 }
 
 func (m *mockClient) Run() {
-	conn, _ := net.Dial("tcp", "127.0.0.1:8002")
+	conn, err := net.Dial("tcp", "127.0.0.1:8002")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 	fmt.Print("Messsage to send: ")
 	text := "REQ 1 Hello"
 	// send to socket
