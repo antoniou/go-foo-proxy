@@ -20,7 +20,9 @@ Proxying from :8002 to localhost:8001
 
 
 
+
 ## Future Work/Improvements:
-1. Do not open a new TCP connection to server on every incoming connection
-2. More efficient analysis of data
-3. Logging
+1. *Proxy/Server Connection Pooling*: At the moment, everytime the proxy accepts a new client connection it also establishes a new server connection. That results in a lot of connections to the server being maintained. To resolve this, the Proxy needs to be modified so that
+connections to the server are reused.
+2. *Better Logging*: At the moment we are not using a logger. It would be more appropriate to have a separate logger that outputs events with a verbosity level
+3. *Better exception handling*: Because of the limited time spent on this assignment, special situations (e.g, incorrect message format) are not being handled correctly.
