@@ -2,7 +2,9 @@ package analysis
 
 import (
 	"fmt"
-	"time"
+	"os"
+	"os/signal"
+	"syscall"
 )
 
 // Reporter - Listens to SIGUSR1 signal and
@@ -32,8 +34,15 @@ func (r *Reporter) Report() string {
 
 // Run - Starts the reporter
 func (r *Reporter) Run() error {
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, syscall.SIGUSR1)
 	for {
-		time.Sleep(5 * time.Second)
-		fmt.Println(r.Report())
+		s := <-c
+		switch s {
+		case syscall.SIGUSR1:
+			fmt.Println(r.Report())
+		default:
+			return fmt.Errorf("Got signal %s", s)
+		}
 	}
 }
