@@ -41,14 +41,14 @@ type ReporterTestSuite struct {
 func (suite *ReporterTestSuite) TestReport() {
 	r := NewTestReporter()
 	report := r.Report()
-	assert.Contains(suite.T(), report, "msg_total: 1000")
-	assert.Contains(suite.T(), report, "msg_req: 100")
-	assert.Contains(suite.T(), report, "msg_ack: 100")
-	assert.Contains(suite.T(), report, "msg_nak: 100")
-	assert.Contains(suite.T(), report, "request_rate_1s: 10.1")
-	assert.Contains(suite.T(), report, "request_rate_10s: 10.1")
-	assert.Contains(suite.T(), report, "response_rate_1s: 10.2")
-	assert.Contains(suite.T(), report, "response_rate_10s: 10.2")
+	assert.Contains(suite.T(), report, "\"msg_total\":1000")
+	assert.Contains(suite.T(), report, "\"msg_req\":100")
+	assert.Contains(suite.T(), report, "\"msg_ack\":100")
+	assert.Contains(suite.T(), report, "\"msg_nak\":100")
+	assert.Contains(suite.T(), report, "\"request_rate_1s\":10.1")
+	assert.Contains(suite.T(), report, "\"request_rate_10s\":10.1")
+	assert.Contains(suite.T(), report, "\"response_rate_1s\":10.2")
+	assert.Contains(suite.T(), report, "\"response_rate_10s\":10.2")
 }
 
 func TestReporterTestSuite(t *testing.T) {

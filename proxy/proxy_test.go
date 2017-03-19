@@ -120,14 +120,14 @@ func (suite *ProxyTestSuite) TestProxyRun() {
 	var buf bytes.Buffer
 	io.Copy(&buf, r)
 
-	assert.Contains(suite.T(), buf.String(), "msg_total: 2")
-	assert.Contains(suite.T(), buf.String(), "msg_req: 1")
-	assert.Contains(suite.T(), buf.String(), "msg_ack: 1")
-	assert.Contains(suite.T(), buf.String(), "msg_nak: 0")
-	assert.Contains(suite.T(), buf.String(), "request_rate_1s: 0.000000")
-	assert.Contains(suite.T(), buf.String(), "request_rate_10s: 0.1")
-	assert.Contains(suite.T(), buf.String(), "response_rate_1s: 0.000000")
-	assert.Contains(suite.T(), buf.String(), "response_rate_10s: 0.1")
+	assert.Contains(suite.T(), buf.String(), "\"msg_total\":2")
+	assert.Contains(suite.T(), buf.String(), "\"msg_req\":1")
+	assert.Contains(suite.T(), buf.String(), "\"msg_ack\":1")
+	assert.Contains(suite.T(), buf.String(), "\"msg_nak\":0")
+	assert.Contains(suite.T(), buf.String(), "\"request_rate_1s\":0")
+	assert.Contains(suite.T(), buf.String(), "\"request_rate_10s\":0.1")
+	assert.Contains(suite.T(), buf.String(), "\"response_rate_1s\":0")
+	assert.Contains(suite.T(), buf.String(), "\"response_rate_10s\":0.1")
 
 }
 

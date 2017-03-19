@@ -1,6 +1,7 @@
 package analysis
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"os/signal"
@@ -13,6 +14,18 @@ type Reporter struct {
 	analyser AnalyserI
 }
 
+// Report - A statistics report
+type Report struct {
+	MsgTotal        uint64  `json:"msg_total"`
+	MsgReq          uint64  `json:"msg_req"`
+	MsgAck          uint64  `json:"msg_ack"`
+	MsgNak          uint64  `json:"msg_nak"`
+	RequestRate1s   float32 `json:"request_rate_1s"`
+	RequestRate10s  float32 `json:"request_rate_10s"`
+	ResponseRate1s  float32 `json:"response_rate_1s"`
+	ResponseRate10s float32 `json:"response_rate_10s"`
+}
+
 // NewReporter - Creates a new Reporter struct
 func NewReporter(a *Analyser) *Reporter {
 	return &Reporter{
@@ -22,14 +35,22 @@ func NewReporter(a *Analyser) *Reporter {
 
 // Report - Creates and returns a statistics report
 func (r *Reporter) Report() string {
-	return fmt.Sprintf("msg_total: %d\n", r.analyser.TotalCount()) +
-		fmt.Sprintf("msg_req: %d\n", r.analyser.Count("REQ")) +
-		fmt.Sprintf("msg_ack: %d\n", r.analyser.Count("ACK")) +
-		fmt.Sprintf("msg_nak: %d\n", r.analyser.Count("NAK")) +
-		fmt.Sprintf("request_rate_1s: %f\n", r.analyser.RequestRate(1)) +
-		fmt.Sprintf("request_rate_10s: %f\n", r.analyser.RequestRate(10)) +
-		fmt.Sprintf("response_rate_1s: %f\n", r.analyser.ResponseRate(1)) +
-		fmt.Sprintf("response_rate_10s: %f\n", r.analyser.ResponseRate(10))
+	mreport := &Report{
+		MsgTotal:        r.analyser.TotalCount(),
+		MsgReq:          r.analyser.Count("REQ"),
+		MsgAck:          r.analyser.Count("ACK"),
+		MsgNak:          r.analyser.Count("NAK"),
+		RequestRate1s:   r.analyser.RequestRate(1),
+		RequestRate10s:  r.analyser.RequestRate(10),
+		ResponseRate1s:  r.analyser.ResponseRate(1),
+		ResponseRate10s: r.analyser.ResponseRate(10),
+	}
+
+	b, err := json.Marshal(*mreport)
+	if err != nil {
+		fmt.Println(err)
+	}
+	return string(b)
 }
 
 // Run - Starts the reporter

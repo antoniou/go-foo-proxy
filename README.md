@@ -16,6 +16,11 @@ $ go-foo-proxy -listen=:8002 -forward localhost:8001
 Proxying from :8002 to localhost:8001
 ```
 
+To output the statistics, send a SIGUSR1 signal to foo-proxy:
+```bash
+$ kill -SIGUSR1 $(pidof go-foo-proxy)
+```
+
 ## Overview
 The main components of the solution are:
   * Proxy: The intercepting proxy that connects to a remote server and accepts connections from clients. It consequently pipes data from/to the client and server. On every incoming request, it calls the Analyser to update the collected analysis data.
