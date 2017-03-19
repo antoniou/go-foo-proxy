@@ -94,6 +94,7 @@ func (suite *ProxyTestSuite) TestProxyRun() {
 	remoteAddr := "localhost:8001"
 	p := proxy.New(localAddr, remoteAddr)
 	go p.Run()
+	time.Sleep(1 * time.Second)
 	c.Run()
 	time.Sleep(1 * time.Second)
 
