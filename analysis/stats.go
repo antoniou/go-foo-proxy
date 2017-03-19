@@ -15,10 +15,11 @@ type Statistics struct {
 
 // NewStatistics - Initialises a new Statistics struct
 func NewStatistics() *Statistics {
+	size := 1000000
 	count := make(map[string][]time.Time)
-	count["REQ"] = make([]time.Time, 0, 1000000)
-	count["ACK"] = make([]time.Time, 0, 1000000)
-	count["NAK"] = make([]time.Time, 0, 1000000)
+	count["REQ"] = make([]time.Time, 0, size)
+	count["ACK"] = make([]time.Time, 0, size)
+	count["NAK"] = make([]time.Time, 0, size)
 	return &Statistics{
 		count: count,
 	}
